@@ -1,0 +1,32 @@
+.spinner
+    width: 81px
+    height: 81px
+    background: #EDEEF2
+    border-radius: 17.4167px
+    display: flex
+    align-items: center
+    align-content: center
+    justify-content: center
+    pointer-events: none
+    position: absolute
+    left: 50%
+    top: 50%
+    transform: translate(-50%, -50%) scale(0.9)
+    opacity: 0
+    transition: 0.2s
+    &_active
+        transform: translate(-50%, -50%) scale(1)
+        opacity: 1
+    &_active &__icon
+        animation: spinnerAnimation .5s infinite linear
+    &__icon
+        width: 41px
+        height: 41px
+        display: block
+
+
+@keyframes spinnerAnimation
+    0%
+        transform: rotate(0deg)
+    100%
+        transform: rotate(360deg)

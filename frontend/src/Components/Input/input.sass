@@ -1,0 +1,63 @@
+.input
+    background: #FFFFFF
+    box-shadow: 0px -0.667907px 2.00372px rgba(0, 0, 0, 0.13)
+    padding: 8px 13px 8px 17px
+    $icon-width: 27px
+    display: flex
+    align-items: flex-end
+    align-content: flex-end
+    justify-content: flex-start
+    &__textarea-shell
+        width: 100%
+        padding: 4px 0
+        position: relative
+        &__cursor
+            position: absolute
+            right: calc(100% + 1px)
+            height: 23px
+            width: 2px
+            background: #55A1DB
+            top: 50%
+            transform: translateY(-50%)
+            animation: 1s linear 0s infinite blink
+        &__textarea
+            display: block
+            width: 100%
+            border: none
+            padding: 2px 27px 2px 0
+            font-size: 16px
+            line-height: 19px
+            outline: none
+            resize: none
+            &::placeholder
+                color: #A3ACB3
+        &__send
+            width: 27px
+            height: 27px
+            position: absolute
+            right: 0
+            bottom: 2px
+            pointer-events: none
+            transform: scale(0.5)
+            opacity: 0
+            transition: opacity 0.05s, transform 0.15s
+            &_active
+                transform: scale(1)
+                opacity: 1
+            &__icon
+                display: block
+                width: 100%
+                height: 100%
+                path
+                    transition: 0.2s
+
+
+@keyframes blink
+    0%
+        opacity: 1
+    45%
+        opacity: 1
+    50%
+        opacity: 0
+    100%
+        opacity: 0
