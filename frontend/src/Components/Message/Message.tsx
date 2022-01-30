@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from 'react'
-import './message.sass'
+import React, { useEffect, useState } from 'react'
+import * as Types from '../../../../Utils/Types'
 import * as Assets from '../../Utils/Assets'
-import * as Types from '../../Utils/Types'
 import GetTime from '../../Utils/GetTime'
+import './message.sass'
 
-const Message = ({ text, time, corner, right, robot, share }: Types.Message) => {
+const Message = ({ text, time, corner, right, robot, share, readed }: Types.Message) => {
   const [show, setShow] = useState(false)
-  const [readed, setReaded] = useState(false)
 
   useEffect(() => {
     const timerShow = setTimeout(() => setShow(true), 0)
-    const timerReaded = setTimeout(() => setReaded(true), 100)
+
     return () => {
       clearTimeout(timerShow)
-      clearTimeout(timerReaded)
     }
   }, [])
 
@@ -76,7 +74,7 @@ const Message = ({ text, time, corner, right, robot, share }: Types.Message) => 
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    style={{ transform: `translate(-${readed ? 6 : 0}px)` }}
+                    style={{ transform: `translate(-${readed ? 5 : 0}px)` }}
                     d="M6.51174 4.93324C6.20893 4.65062 5.73433 4.66698 5.45171 4.96979C5.16908 5.27261 5.18545 5.7472 5.48826 6.02982L6.51174 4.93324ZM8.95486 8.2394L8.44312 8.78769C8.73127 9.05664 9.17844 9.05664 9.4666 8.78769L8.95486 8.2394ZM17.2231 1.54829C17.5259 1.26567 17.5423 0.791074 17.2596 0.488261C16.977 0.185448 16.5024 0.169083 16.1996 0.451709L17.2231 1.54829ZM5.48826 6.02982L8.44312 8.78769L9.4666 7.69111L6.51174 4.93324L5.48826 6.02982ZM9.4666 8.78769L17.2231 1.54829L16.1996 0.451709L8.44312 7.69111L9.4666 8.78769Z"
                     fill="#62AC55"
                   />

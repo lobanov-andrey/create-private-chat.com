@@ -1,9 +1,11 @@
-import path from 'path'
-import { Configuration, HotModuleReplacementPlugin } from 'webpack'
-import HtmlWebpackPlugin from 'html-webpack-plugin'
-import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
+import dotenv from 'dotenv'
 import ESLintPlugin from 'eslint-webpack-plugin'
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import path from 'path'
+import webpack, { Configuration, HotModuleReplacementPlugin } from 'webpack'
+dotenv.config()
 
 const config: Configuration = {
   mode: 'development',
@@ -46,10 +48,13 @@ const config: Configuration = {
     new MiniCssExtractPlugin({
       filename: 'index.css',
     }),
+    new webpack.DefinePlugin({
+      'process.env.WS_URL': JSON.stringify(process.env.WS_URL),
+    }),
   ],
   devtool: 'inline-source-map',
   devServer: {
-    static: path.join(__dirname, 'build'),
+    static: path.join(__dirname, 'dist'),
     historyApiFallback: true,
     port: 4000,
     open: true,
