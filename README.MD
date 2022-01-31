@@ -1,4 +1,4 @@
-![https://raw.githubusercontent.com/lobanov-andrey/create-private-chat.com/main/preview.gif]()
+![](https://raw.githubusercontent.com/lobanov-andrey/create-private-chat.com/main/preview.gif)
 
 | status | tasks                                                                                                                                              |
 | :----: | -------------------------------------------------------------------------------------------------------------------------------------------------- |
