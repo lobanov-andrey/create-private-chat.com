@@ -1,3 +1,5 @@
+![](https://github.com/https://github.com/lobanov-andrey/create-private-chat.com/preview.gif)
+
 | status | tasks                                                                                                                                              |
 | :----: | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 |   -    | replace generate id chat and person by Date.now() to more hard id                                                                                  |
@@ -9,6 +11,7 @@
 |   -    | add support install as PWA                                                                                                                         |
 |   -    | clear any type anywhere                                                                                                                            |
 |   -    | handle person who wanna connect to chat with not exist chatid                                                                                      |
+|   ✅   | add gif of app                                                                                                                                     |
 |   ✅   | add .env backend and frontend                                                                                                                      |
 |   ✅   | user is typing                                                                                                                                     |
 |   ✅   | user is online or offline                                                                                                                          |
