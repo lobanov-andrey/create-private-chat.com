@@ -2,10 +2,12 @@
 
 | status | tasks                                                                                                                                              |
 | :----: | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-|   -    | add Jest tests for main functions                                                                                 |
-|   -    | add SSR                                                                                  |
-|   -    | add Redux                                                                                  |
-|   -    | add Mobx                                                                                  |
+|   -    | add Jest tests for main functions                                                                                                                  |
+|   -    | add SSR                                                                                                                                            |
+|   -    | add Redux                                                                                                                                          |
+|   -    | add Mobx                                                                                                                                           |
+|   -    | add instructions for install certificates with Let's Encrypt                                                                                       |
+|   -    | Add instrucionts for ngninx install                                                                                                                |
 |   -    | replace generate id chat and person by Date.now() to more hard id                                                                                  |
 |   -    | if not support share, then show messsage "link copied, send link to person"                                                                        |
 |   -    | not send messages all readed to another person when user open page and scroll not at bottom                                                        |
