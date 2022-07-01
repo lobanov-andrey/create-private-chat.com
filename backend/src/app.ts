@@ -1,210 +1,131 @@
-import WebSocket from 'ws'
-import * as Types from '../../Utils/Types'
+import { Server, Socket } from 'socket.io'
+import { v4 as uuidv4 } from 'uuid'
+import { OppositePersonMessage } from '../../Utils/Types'
+import { ClientToServerEvents, ServerToClientEvents } from '../../Utils/webSocketInterfaces'
 
-require('dotenv').config()
-
-interface ProcessENVType {
-  PORT: number
-  SITE_URL: string
+interface Person {
+  socket: Socket<ClientToServerEvents, ServerToClientEvents>
+  chatID?: string
+  oppositeMessages: OppositePersonMessage[]
 }
 
-const processENV: ProcessENVType = {
-  PORT: Number(process.env.PORT),
-  SITE_URL: process.env.SITE_URL,
+let persons: Person[] = []
+
+const SITE_URL = 'http://localhost:4000'
+
+const webSocket = new Server<ClientToServerEvents, ServerToClientEvents>(5000)
+
+const getPersonBySocketID = (socketID: string): Person | undefined => {
+  return persons.find(person => person.socket.id == socketID)
 }
 
-const { PORT, SITE_URL } = processENV
-if (!PORT) throw 'PORT not found in .env'
-if (!SITE_URL) throw 'SITE_URL not found in .env'
-
-let wss = new WebSocket.Server({ port: PORT })
-let persons = []
-
-wss.sendMessageByID = (ID: string, dataFromServer: Types.DataFromServer) => {
-  const person = persons.find(p => p.ID == ID)
-  if (person) person.ws.send(JSON.stringify(dataFromServer))
-  else console.log('not found person for send message!')
+const getPersonByChatID = (chatID: string): Person | undefined => {
+  return persons.find(person => person.chatID == chatID)
 }
 
-wss.on('connection', function connection(ws: any) {
-  console.log('client connected')
+const getOppositePerson = (socketID: string): Person | undefined => {
+  const person = getPersonBySocketID(socketID)
+  if (person) return persons.find(personLoop => personLoop.chatID == person.chatID && personLoop.socket.id != person.socket.id)
+}
 
-  let ID = `${Date.now()}`
-
-  const person: Types.Person = {
-    ws,
-    ID,
-    chatID: null,
+const changeChatIDBySocketID = (socketID: string, chatID?: string) => {
+  for (let index = 0; index < persons.length; index++) {
+    const person = persons[index]
+    if (person.socket.id == socketID) {
+      person.chatID = chatID
+      break
+    }
   }
+}
+const changeOppositeMessagesBySocketID = (socketID: string, oppositeMessages: OppositePersonMessage[]) => {
+  for (let index = 0; index < persons.length; index++) {
+    const person = persons[index]
+    if (person.socket.id == socketID) {
+      person.oppositeMessages = oppositeMessages
+      break
+    }
+  }
+}
 
-  const getAnotherPerson = (): Types.Person | null => {
-    const personsByChatID: Types.Person[] = persons.filter(p => p.chatID == person.chatID && p.ID != person.ID)
+webSocket.on('connection', socket => {
+  persons.push({
+    socket,
+    chatID: undefined,
+    oppositeMessages: [],
+  })
 
-    if (personsByChatID.length == 1) {
-      return personsByChatID[0]
+  socket.on('createChat', () => {
+    const chatID = uuidv4()
+    changeChatIDBySocketID(socket.id, chatID)
+
+    socket.emit('chatCreated', {
+      type: 'robot',
+      text: 'Chat created, share link to chat to your person! Messages appear when Person involve to chat',
+      share: `${SITE_URL}?chatID=${chatID}`,
+      time: Date.now(),
+    })
+  })
+
+  socket.on('connectToChat', chatID => {
+    const oppositePerson = getPersonByChatID(chatID)
+    if (oppositePerson) {
+      changeChatIDBySocketID(socket.id, chatID)
+      oppositePerson.socket.emit('personConnected')
+
+      socket.emit('chatConnected', oppositePerson.oppositeMessages)
+      changeOppositeMessagesBySocketID(oppositePerson.socket.id, [])
     } else {
-      return null
+      socket.emit('chatDoesntExist')
     }
-  }
+  })
 
-  persons = [...persons, person]
-
-  person.ws.onmessage = (event: WebSocket) => {
-    const data: Types.DataFromClient = JSON.parse(event.data)
-    switch (data.type) {
-      case 'CREATE_PRIVATE_CHAT': {
-        const chatID = `${Date.now()}`
-        person.chatID = chatID
-
-        wss.sendMessageByID(person.ID, {
-          type: 'NEW_MESSAGE',
-          message: {
-            text: 'Chat created, share link to chat to your person! Messages appear when Person involve to chat',
-            robot: true,
-            share: `${SITE_URL}?id=${chatID}`,
-            time: Date.now(),
-            readed: true,
-          },
-        })
-
-        wss.sendMessageByID(person.ID, {
-          type: 'SET_STATE',
-          state: { createPrivateChatIsOpen: false, deleteChatIsOpen: true, chatID: chatID },
-        })
-        break
-      }
-      case 'SET_CHATID': {
-        try {
-          const chatID = data.chatID
-          const personsByChatID: Types.Person[] = persons.filter(p => p.chatID == chatID)
-
-          if (personsByChatID.length == 1) {
-            const anotherPerson: Types.Person = personsByChatID[0]
-
-            person.chatID = chatID
-            anotherPerson.chatID = chatID
-            wss.sendMessageByID(anotherPerson.ID, {
-              type: 'SEND_TEXT',
-              text: 'Person joined',
-            })
-            wss.sendMessageByID(anotherPerson.ID, {
-              type: 'SET_STATE',
-              state: { isConnectedToPerson: true, personIsOnline: true },
-            })
-            wss.sendMessageByID(person.ID, {
-              type: 'SET_STATE',
-              state: {
-                isConnectedToPerson: true,
-                personIsOnline: true,
-                deleteChatIsOpen: true,
-                createPrivateChatIsOpen: false,
-              },
-            })
-          } else {
-            console.log('another person not found by set chatid')
-          }
-        } catch (error) {
-          console.error(error)
-        }
-      }
-      case 'NEW_MESSAGE': {
-        const { message } = data
-        const anotherPerson: Types.Person = getAnotherPerson()
-        if (anotherPerson) {
-          wss.sendMessageByID(anotherPerson.ID, {
-            type: 'NEW_MESSAGE',
-            message,
-          })
-        } else {
-          console.log('another person not found by new message')
-        }
-
-        break
-      }
-      case 'DELETE_CHAT': {
-        try {
-          const anotherPerson: Types.Person = getAnotherPerson()
-          if (anotherPerson) {
-            wss.sendMessageByID(anotherPerson.ID, {
-              type: 'DELETE_CHAT',
-            })
-            anotherPerson.chatID = null
-          } else {
-            console.log('another person not found by delete chat')
-          }
-          person.chatID = null
-        } catch (error) {
-          console.error(error)
-
-          break
-        }
-      }
-      case 'PERSON_TYPING': {
-        try {
-          const anotherPerson: Types.Person = getAnotherPerson()
-          if (anotherPerson) {
-            wss.sendMessageByID(anotherPerson.ID, {
-              type: 'PERSON_TYPING',
-            })
-          } else {
-            console.log('another person not found person typing')
-          }
-        } catch (error) {
-          console.error(error)
-          break
-        }
-      }
-      case 'CHANGE_VISIBILITY': {
-        try {
-          const value = data.value
-          const anotherPerson: Types.Person = getAnotherPerson()
-          if (anotherPerson) {
-            wss.sendMessageByID(anotherPerson.ID, {
-              type: 'CHANGE_VISIBILITY',
-              value,
-            })
-          } else {
-            console.log('another person not found changet vidibilyty')
-          }
-        } catch (error) {
-          console.error(error)
-          break
-        }
-      }
-      case 'VIEWED_MESSAGES': {
-        try {
-          const anotherPerson: Types.Person = getAnotherPerson()
-          if (anotherPerson) {
-            wss.sendMessageByID(anotherPerson.ID, {
-              type: 'VIEWED_MESSAGES',
-            })
-          } else {
-            console.log('another person not found messages viewed')
-          }
-        } catch (error) {
-          console.error(error)
-          break
-        }
-      }
-      default: {
-        break
-      }
+  socket.on('newMessage', message => {
+    const oppositePerson = getOppositePerson(socket.id)
+    const oppositeMessage: OppositePersonMessage = {
+      type: 'oppositePerson',
+      time: message.time,
+      text: message.text,
+      readed: false,
     }
-  }
-
-  person.ws.onclose = () => {
-    persons = persons.filter(p => p.ID != person.ID)
-
-    const anotherPerson: Types.Person = getAnotherPerson()
-    if (anotherPerson) {
-      wss.sendMessageByID(anotherPerson.ID, {
-        type: 'DELETE_CHAT',
-      })
-      anotherPerson.chatID = null
+    if (oppositePerson) {
+      oppositePerson.socket.emit('newMessage', oppositeMessage)
     } else {
-      console.log('another person not found by client disconnected')
+      const person = getPersonBySocketID(socket.id)
+      if (person) changeOppositeMessagesBySocketID(socket.id, [...person.oppositeMessages, oppositeMessage])
     }
+  })
 
-    console.log('client disconnected')
-  }
+  socket.on('deleteChat', () => {
+    const oppositePerson = getOppositePerson(socket.id)
+    if (oppositePerson) {
+      oppositePerson.socket.emit('chatDeleted')
+      changeChatIDBySocketID(oppositePerson.socket.id)
+    }
+    changeChatIDBySocketID(socket.id)
+  })
+
+  socket.on('personTyping', () => {
+    const oppositePerson = getOppositePerson(socket.id)
+    if (oppositePerson) oppositePerson.socket.emit('personTyping')
+  })
+
+  socket.on('changeVisibility', visibility => {
+    const oppositePerson = getOppositePerson(socket.id)
+    if (oppositePerson) oppositePerson.socket.emit('changeVisibility', visibility)
+  })
+
+  socket.on('viewedMessages', () => {
+    const oppositePerson = getOppositePerson(socket.id)
+    if (oppositePerson) oppositePerson.socket.emit('viewedMessages')
+  })
+
+  socket.on('disconnect', () => {
+    persons = persons.filter(personLoop => personLoop.socket.id != socket.id)
+
+    const oppositePerson = getOppositePerson(socket.id)
+    if (oppositePerson) {
+      oppositePerson.socket.emit('chatDeleted')
+      changeChatIDBySocketID(oppositePerson.socket.id)
+    }
+  })
 })

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack serve --config webpack.start.config.ts",
+    "dev": "webpack serve --config webpack.dev.config.ts",
     "build": "webpack --config webpack.build.config.ts"
   },
   "author": "",
@@ -27,7 +27,6 @@
     "babel-loader": "^8.2.3",
     "clean-webpack-plugin": "^4.0.0",
     "css-loader": "^6.5.1",
-    "dotenv": "^14.3.2",
     "eslint": "^8.2.0",
     "eslint-plugin-react": "^7.27.0",
     "eslint-plugin-react-hooks": "^4.3.0",
@@ -36,16 +35,19 @@
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.5.2",
     "node-sass": "^7.0.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "sass-loader": "^12.4.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4",
     "webpack": "^5.64.0",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.4.0"
+    "webpack-dev-server": "^4.9.3"
   },
   "dependencies": {
-    "@types/ws": "^8.2.2"
+    "@juggle/resize-observer": "^3.3.1",
+    "immer": "^9.0.15",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "socket.io-client": "^4.5.1",
+    "zustand": "^4.0.0-rc.1"
   }
 }

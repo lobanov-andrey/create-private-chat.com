@@ -1,15 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Chat from './Components/Chat/Chat'
+import App from './Components/App/App'
 import './index.sass'
-import * as Config from './Utils/Config'
-if (!Config.WS_URL) {
-  throw 'WS_URL not found, create'
-}
 
 ReactDOM.render(
   <React.StrictMode>
-    <Chat />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 )

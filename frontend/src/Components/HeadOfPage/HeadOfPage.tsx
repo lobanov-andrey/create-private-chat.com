@@ -1,12 +1,12 @@
 import React from 'react'
-import * as Assets from '../../Utils/Assets'
+import * as Assets from '../../Utils/assets'
 import TypingAnimation from '../TypingAnimation/TypingAnimation'
 import './head-of-page.sass'
 
 type HeadOfPageProps = {
   name: string
   status: string
-  personIsTyping: boolean
+  personIsTyping?: boolean
 }
 
 const HeadOfPage = ({ name, status, personIsTyping }: HeadOfPageProps) => {

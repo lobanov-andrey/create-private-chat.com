@@ -1,4 +1,4 @@
-const FindGetParameter = (parameterName: string) => {
+const findGetParameter = (parameterName: string) => {
   let result = ''
   location.search
     .substr(1)
@@ -10,4 +10,4 @@ const FindGetParameter = (parameterName: string) => {
   return result
 }
 
-export default FindGetParameter
+export default findGetParameter

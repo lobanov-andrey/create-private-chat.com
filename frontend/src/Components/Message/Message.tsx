@@ -1,10 +1,25 @@
 import React, { useEffect, useState } from 'react'
-import * as Types from '../../../../Utils/Types'
-import * as Assets from '../../Utils/Assets'
-import GetTime from '../../Utils/GetTime'
+import * as Assets from '../../Utils/assets'
+import getTime from '../../Utils/getTime'
 import './message.sass'
 
-const Message = ({ text, time, corner, right, robot, share, readed }: Types.Message) => {
+const Message = ({
+  text,
+  time,
+  corner,
+  right,
+  robot,
+  share,
+  readed,
+}: {
+  text: string
+  time: number
+  right?: boolean
+  corner?: boolean
+  robot?: boolean
+  share?: string
+  readed?: boolean
+}) => {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
@@ -63,7 +78,7 @@ const Message = ({ text, time, corner, right, robot, share, readed }: Types.Mess
             {robot ? <div className="message__shell__name">Robot</div> : null}
             <div className="message__shell__text">{text}</div>
             <div className="message__shell__bottom">
-              <div className="message__shell__bottom__time">{GetTime(time)}</div>
+              <div className="message__shell__bottom__time">{getTime(time)}</div>
               {right ? (
                 <svg
                   className="message__shell__bottom__readed"
@@ -98,7 +113,12 @@ const Message = ({ text, time, corner, right, robot, share, readed }: Types.Mess
                     url: share,
                   })
                 } else {
-                  alert('Share not supported on your device!')
+                  try {
+                    await navigator.clipboard.writeText(share)
+                    alert('Link copied')
+                  } catch (error) {
+                    alert('Browser error')
+                  }
                 }
               }}
               className="message__share__shell"
