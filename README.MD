@@ -1,3 +1,4 @@
+# Moment chat on TypeScript React, NodeJS, Socket.io, Zustand, Telegram UI from scratch with Sass and Webpack
 ![](https://raw.githubusercontent.com/lobanov-andrey/moment-chat/main/preview.gif)
 
 ## How to run code
